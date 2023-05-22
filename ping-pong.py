@@ -1,93 +1,145 @@
-#Создай собственный Шутер!
-
 from pygame import *
-from random import randint
-
-window = display.set_mode((700, 500))
-display.set_caption('PING_PONG')
-clock = time.Clock()
-FPS = 60
-background = transform.scale(image.load('stol.png'), (700, 500))
-# speed_x = 2
-# speed_y = 2
-
+mixer.init()
+mixer.music.load('muzyka.mp3')
+mixer.music.play()
+font.init()
+font=font.Font(None,70)
+p1=font.render('Left player wins!',True,(0,0,0))
+p2=font.render('Right player wins!',True,(0,0,0))
 class GameSprite(sprite.Sprite):
-    def __init__(self, player_image, player_x, player_y, player_speed, width, lenght):
+    def __init__(self,img,x,y,speed,lenght,width):
         super().__init__()
-        self.image = transform.scale(image.load(player_image),(width, lenght))
-        self.speed = player_speed
-        self.rect = self.image.get_rect()
-        self.rect.x = player_x
-        self.rect.y = player_y
-        self.width = width
-        self.lenght = lenght
+        self.image=transform.scale(image.load(img),(lenght,width))
+        self.speed=speed
+        self.rect=self.image.get_rect()
+        self.rect.x=x
+        self.rect.y=y
     def reset(self):
-        window.blit(self.image, (self.rect.x, self.rect.y))
-class Player(GameSprite):
-    def __init__(self, player_image, player_x, player_y, player_speed, width, lenght):
-        super().__init__(player_image, player_x, player_y, player_speed,width,lenght)
+        window.blit(self.image,(self.rect.x,self.rect.y))
+class Player_r(GameSprite):
+    def __init__(self,img,x,y,speed,lenght,width):
+        super().__init__(img,x,y,speed,lenght,width)
     def update(self):
-        keys_pressed = key.get_pressed()
-        if keys_pressed[K_UP] and self.rect.y > 0:
-            self.rect.y -= self.speed
-
-        if keys_pressed[K_DOWN] and self.rect.y < 320:
-            self.rect.y += self.speed
-    def updaye(self):
-        keys_pressed = key.get_pressed()
-        if keys_pressed[K_w] and self.rect.y > 0:
-            self.rect.y -= self.speed
-    
-        if keys_pressed[K_s] and self.rect.y < 320:
-            self.rect.y += self.speed
+        keys_pressed=key.get_pressed()
+        if keys_pressed[K_UP] and self.rect.y>=5 and self.rect.y<=345:
+            self.rect.y-=self.speed
+        if keys_pressed[K_DOWN] and self.rect.y<=345 and self.rect.y>=5:
+            self.rect.y+=self.speed
+class Player_l(GameSprite):
+    def __init__(self,img,x,y,speed,lenght,width):
+        super().__init__(img,x,y,speed,lenght,width)
+        self.v=self.speed
+        self.h=self.speed
+    def update(self):
+        keys_pressed=key.get_pressed()
+        if keys_pressed[K_w] and self.rect.y>=5 and self.rect.y<345:
+            self.rect.y-=self.speed
+        if keys_pressed[K_s] and self.rect.y<=345 and self.rect.y>5:
+            self.rect.y+=self.speed
+r_racket=Player_r('racket.png',650,200,5,20,150)
+l_racket=Player_l('racket.png',30,200,5,20,150)
 class Ball(GameSprite):
-    def __init__(self, player_image, player_x, player_y, player_speed, width, lenght, speed_y, speed_x):
-        super().__init__(player_image, player_x, player_y, player_speed,width,lenght)
-        self.speed_y = speed_y
-        self.speed_x = speed_x
+    def __init__(self,img,x,y,speed,lenght,width):
+        super().__init__(img,x,y,speed,lenght,width)
+        self.v=self.speed
+        self.h=self.speed
     def update(self):
-        self.rect.y += self.speed_y
-        self.rect.x += self.speed_x
-        if self.rect.y >= 470:
-            self.speed_y *= -1
-        if self.rect.y <= 0:
-            self.speed_y *= -1
-        if sprite.collide_rect(myach, player1):
-            self.speed_y *= 1
-            self.speed_x *= -1
-        if sprite.collide_rect(myach, player):
-            self.speed_y *= 1
-            self.speed_x *= -1
+        if self.rect.y>=450 or self.rect.y<=5:
+            self.v*=-1
+        if sprite.collide_rect(self,r_racket) or sprite.collide_rect(self,l_racket):
+            self.h*=-1
+        self.rect.x+=self.h
+        self.rect.y+=self.v
+ball1=Ball('ball.png',300,200,5,50,50)
+ball2=Ball('ball.png',300,200,5,30,30)
+window=display.set_mode((700,500))
+display.set_caption('ping pong')
+background=transform.scale(image.load('fon.jpg'),(700,500))
+run=True
+finish=False
+fps=60
+clock=time.Clock()
+g1=0
+g2=0
 
+while run:
+    for e in event.get():
+        if e.type==QUIT:
+            run=False
+    if not finish:
+        
+        clock.tick(fps)
+        window.blit(background,(0,0))
+        r_racket.reset()
+        r_racket.update()
+        l_racket.reset()
+        l_racket.update()
+        ball1.reset()
+        ball1.update()
+        if ball1.rect.x<=0:
+            g2+=1
+            ball1.rect.x=300
+            ball1.rect.y=200
+            if ball1.v>0:
+                ball1.v+=1
+            if ball1.v<0:
+                ball1.v-=1
+            if ball1.h>0:
+                ball1.h+=1
+            if ball1.h<0:
+                ball1.h-=1
+        if ball1.rect.x>=655:
+            g1+=1
+            ball1.rect.x=300
+            ball1.rect.y=200
+            if ball1.v>0:
+                ball1.v+=1
+            if ball1.v<0:
+                ball1.v-=1
+            if ball1.h>0:
+                ball1.h+=1
+            if ball1.h<0:
+                ball1.h-=1
+        if g1>=5 or g2>=5:
+            ball2.reset()
+            ball2.update()
+            if ball2.rect.x<=0:
+                g2+=1
+                ball2.rect.x=300
+                ball2.rect.y=200
+                if ball2.v>0:
+                    ball2.v+=1
+                if ball2.v<0:
+                    ball2.v-=1
+                if ball2.h>0:
+                    ball2.h+=1
+                if ball2.h<0:
+                    ball2.h-=1
+            if ball2.rect.x>=655:
+                g1+=1
+                ball2.rect.x=300
+                ball2.rect.y=200
+                if ball2.v>0:
+                    ball2.v+=1
+                if ball2.v<0:
+                    ball2.v-=1
+                if ball2.h>0:
+                    ball2.h+=1
+                if ball2.h<0:
+                    ball2.h-=1
+        if g1>=7 or g2>=7:
+            if r_racket.speed>0 and l_racket.speed>0:
+                r_racket.speed*=-1
+                l_racket.speed*=-1
 
-
-player = Player(('rak.png'), 0, 250, 6, 40, 175)
-player1 = Player(('rak2.png'), 660, 250, 6, 40, 175)
-myach = Ball(('myac1.png'), 330, 250, 2, 40, 40, 2, 2)
-
-
-
-game = True
-finish = False
-while game:
-    
-    for e in event.get():   
-        if e.type == QUIT:
-            game = False
-
-    if finish != True:
-
-        window.blit(background, (0, 0))
-    
-        clock.tick(FPS)
-
-        player.reset()
-        player.updaye()
-
-        player1.reset()
-        player1.update()
-
-        myach.reset()
-        myach.update()
-
-        display.update()
+        if g1==10:
+            window.blit(p1,(150,200))
+            finish=True
+        if g2==10:
+            window.blit(p2,(150,200))
+            finish=True
+        t1=font.render('Left player: '+str(g1)+'pts',True,(0,0,0))
+        t2=font.render('Right player: '+str(g2)+'pts',True,(0,0,0))
+        window.blit(t1,(10,10))
+        window.blit(t2,(10,100))
+    display.update()
